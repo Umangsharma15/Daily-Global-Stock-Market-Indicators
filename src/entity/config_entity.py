@@ -78,3 +78,15 @@ class ModelTrainerConfig:
         self._min_samples_split: int = MODEL_TRAINER_MIN_SAMPLES_SPLIT
         self._min_samples_leaf: int = MODEL_TRAINER_MIN_SAMPLES_LEAF
         self._random_state: int = MIN_SAMPLES_SPLIT_RANDOM_STATE
+
+
+@dataclass
+class ModelEvaluationConfig:
+    changed_threshold_score: float = MODEL_EVALUATION_CHANGED_THRESHOLD_SCORE
+    bucket_name: str = MODEL_BUCKET_NAME
+    s3_model_key_path: str = MODEL_FILE_NAME
+
+@dataclass
+class ModelPusherConfig:
+    bucket_name: str = MODEL_BUCKET_NAME
+    s3_model_key_path: str = MODEL_FILE_NAME

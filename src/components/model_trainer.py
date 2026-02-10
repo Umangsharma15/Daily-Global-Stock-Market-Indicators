@@ -1,6 +1,7 @@
 import sys
 import numpy as np
-from sklearn.ensemble import RandomForestRegressor
+from xgboost import XGBRegressor
+
 from sklearn.metrics import r2_score, mean_absolute_error
 
 from src.exception import MyException
@@ -39,13 +40,16 @@ class ModelTrainer:
             X_test, y_test = test_arr[:, :-1], test_arr[:, -1]
 
             # Create model
-            model = RandomForestRegressor(
-                n_estimators=self.model_trainer_config._n_estimators,
-                max_depth=self.model_trainer_config._max_depth,
-                min_samples_split=self.model_trainer_config._min_samples_split,
-                min_samples_leaf=self.model_trainer_config._min_samples_leaf,
-                random_state=self.model_trainer_config._random_state
-            )
+            model = XGBRegressor(
+                n_estimators=300,
+                learning_rate=0.05,
+                max_depth=6,
+                subsample=0.8,
+                colsample_bytree=0.8,
+                random_state=42
+                )
+
+
 
             logging.info("Training RandomForestRegressor...")
             model.fit(X_train, y_train)
