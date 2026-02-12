@@ -1,10 +1,17 @@
 import os
-from src.constants import *
 from dataclasses import dataclass
 from datetime import datetime
+from src.constants import *
 
+# ------------------------------
+# Global timestamp
+# ------------------------------
 TIMESTAMP: str = datetime.now().strftime("%m_%d_%Y_%H_%M_%S")
 
+
+# ------------------------------
+# Training Pipeline Config
+# ------------------------------
 @dataclass
 class TrainingPipelineConfig:
     pipeline_name: str = PIPELINE_NAME
@@ -14,47 +21,82 @@ class TrainingPipelineConfig:
 
 training_pipeline_config: TrainingPipelineConfig = TrainingPipelineConfig()
 
+
+# ------------------------------
+# Data Ingestion Config
+# ------------------------------
 @dataclass
 class DataIngestionConfig:
-    data_ingestion_dir: str = os.path.join(training_pipeline_config.artifact_dir, DATA_INGESTION_DIR_NAME)
-    feature_store_file_path: str = os.path.join(data_ingestion_dir, DATA_INGESTION_FEATURE_STORE_DIR, FILE_NAME)
-    training_file_path: str = os.path.join(data_ingestion_dir, DATA_INGESTION_INGESTED_DIR, TRAIN_FILE_NAME)
-    testing_file_path: str = os.path.join(data_ingestion_dir, DATA_INGESTION_INGESTED_DIR, TEST_FILE_NAME)
+    data_ingestion_dir: str = os.path.join(
+        training_pipeline_config.artifact_dir,
+        DATA_INGESTION_DIR_NAME
+    )
+    feature_store_file_path: str = os.path.join(
+        data_ingestion_dir,
+        DATA_INGESTION_FEATURE_STORE_DIR,
+        FILE_NAME
+    )
+    training_file_path: str = os.path.join(
+        data_ingestion_dir,
+        DATA_INGESTION_INGESTED_DIR,
+        TRAIN_FILE_NAME
+    )
+    testing_file_path: str = os.path.join(
+        data_ingestion_dir,
+        DATA_INGESTION_INGESTED_DIR,
+        TEST_FILE_NAME
+    )
     train_test_split_ratio: float = DATA_INGESTION_TRAIN_TEST_SPLIT_RATIO
-    collection_name:str = DATA_INGESTION_COLLECTION_NAME
+    collection_name: str = DATA_INGESTION_COLLECTION_NAME
 
+
+# ------------------------------
+# Data Validation Config
+# ------------------------------
 @dataclass
 class DataValidationConfig:
-    data_validation_dir: str = os.path.join(training_pipeline_config.artifact_dir, DATA_VALIDATION_DIR_NAME)
-    validation_report_file_path: str = os.path.join(data_validation_dir, DATA_VALIDATION_REPORT_FILE_NAME)
+    data_validation_dir: str = os.path.join(
+        training_pipeline_config.artifact_dir,
+        DATA_VALIDATION_DIR_NAME
+    )
+    validation_report_file_path: str = os.path.join(
+        data_validation_dir,
+        DATA_VALIDATION_REPORT_FILE_NAME
+    )
 
 
+# ------------------------------
+# Data Transformation Config
+# ------------------------------
 @dataclass
 class DataTransformationConfig:
-    data_transformation_dir: str = os.path.join(training_pipeline_config.artifact_dir, DATA_TRANSFORMATION_DIR_NAME)
-    transformed_train_file_path: str = os.path.join(data_transformation_dir, DATA_TRANSFORMATION_TRANSFORMED_DATA_DIR,
-                                                    TRAIN_FILE_NAME.replace("csv", "npy"))
-    transformed_test_file_path: str = os.path.join(data_transformation_dir, DATA_TRANSFORMATION_TRANSFORMED_DATA_DIR,
-                                                   TEST_FILE_NAME.replace("csv", "npy"))
-    transformed_object_file_path: str = os.path.join(data_transformation_dir,
-                                                     DATA_TRANSFORMATION_TRANSFORMED_OBJECT_DIR,
-                                                     PREPROCSSING_OBJECT_FILE_NAME)
-    
-from dataclasses import dataclass
-import os
-from src.constants import (
-    MODEL_TRAINER_DIR_NAME,
-    MODEL_TRAINER_TRAINED_MODEL_DIR,
-    MODEL_TRAINER_TRAINED_MODEL_NAME,
-    MODEL_TRAINER_EXPECTED_SCORE,
-    MODEL_TRAINER_N_ESTIMATORS,
-    MODEL_TRAINER_MIN_SAMPLES_SPLIT,
-    MODEL_TRAINER_MIN_SAMPLES_LEAF,
-    MIN_SAMPLES_SPLIT_MAX_DEPTH,
-    MIN_SAMPLES_SPLIT_RANDOM_STATE
-)
+    data_transformation_dir: str = os.path.join(
+        training_pipeline_config.artifact_dir,
+        DATA_TRANSFORMATION_DIR_NAME
+    )
+
+    transformed_train_file_path: str = os.path.join(
+        data_transformation_dir,
+        DATA_TRANSFORMATION_TRANSFORMED_DATA_DIR,
+        TRAIN_FILE_NAME.replace("csv", "npy")
+    )
+
+    transformed_test_file_path: str = os.path.join(
+        data_transformation_dir,
+        DATA_TRANSFORMATION_TRANSFORMED_DATA_DIR,
+        TEST_FILE_NAME.replace("csv", "npy")
+    )
+
+    transformed_object_file_path: str = os.path.join(
+        data_transformation_dir,
+        DATA_TRANSFORMATION_TRANSFORMED_OBJECT_DIR,
+        PREPROCSSING_OBJECT_FILE_NAME
+    )
 
 
+# ------------------------------
+# Model Trainer Config
+# ------------------------------
 @dataclass
 class ModelTrainerConfig:
     artifact_dir: str
@@ -73,6 +115,7 @@ class ModelTrainerConfig:
 
         self.expected_accuracy: float = MODEL_TRAINER_EXPECTED_SCORE
 
+        # Hyperparameters
         self._n_estimators: int = MODEL_TRAINER_N_ESTIMATORS
         self._max_depth: int = MIN_SAMPLES_SPLIT_MAX_DEPTH
         self._min_samples_split: int = MODEL_TRAINER_MIN_SAMPLES_SPLIT
@@ -80,13 +123,29 @@ class ModelTrainerConfig:
         self._random_state: int = MIN_SAMPLES_SPLIT_RANDOM_STATE
 
 
+# ------------------------------
+# Model Evaluation Config
+# ------------------------------
 @dataclass
 class ModelEvaluationConfig:
     changed_threshold_score: float = MODEL_EVALUATION_CHANGED_THRESHOLD_SCORE
     bucket_name: str = MODEL_BUCKET_NAME
     s3_model_key_path: str = MODEL_FILE_NAME
 
+
+# ------------------------------
+# Model Pusher Config
+# ------------------------------
 @dataclass
 class ModelPusherConfig:
     bucket_name: str = MODEL_BUCKET_NAME
     s3_model_key_path: str = MODEL_FILE_NAME
+
+
+# ------------------------------
+# Predictor Config
+# ------------------------------
+@dataclass
+class VehiclePredictorConfig:
+    model_file_path: str = MODEL_FILE_NAME
+    model_bucket_name: str = MODEL_BUCKET_NAME

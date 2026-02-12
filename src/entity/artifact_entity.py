@@ -40,3 +40,15 @@ class ModelEvaluationArtifact:
 class ModelPusherArtifact:
     bucket_name:str
     s3_model_path:str
+
+
+
+@dataclass
+class MetricArtifact:
+    r2_score: float
+    mae: float
+
+@dataclass
+class ModelTrainerArtifact:
+    trained_model_file_path: str
+    metric_artifact: MetricArtifact

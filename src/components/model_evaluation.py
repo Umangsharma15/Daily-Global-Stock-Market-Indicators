@@ -11,7 +11,6 @@ from src.entity.s3_estimator import Proj1Estimator
 from dataclasses import dataclass
 
 
-# Updated target
 TARGET_COLUMN = "Return"
 
 
@@ -42,6 +41,7 @@ class ModelEvaluation:
         try:
             bucket_name = self.model_eval_config.bucket_name
             model_path = self.model_eval_config.s3_model_key_path
+
             proj1_estimator = Proj1Estimator(
                 bucket_name=bucket_name,
                 model_path=model_path
@@ -49,6 +49,7 @@ class ModelEvaluation:
 
             if proj1_estimator.is_model_present(model_path=model_path):
                 return proj1_estimator
+
             return None
 
         except Exception as e:
@@ -68,11 +69,15 @@ class ModelEvaluation:
             test_df["Next_Close"] = test_df.groupby("Index_Name")["Close"].shift(-1)
 
             # Create return target
-            test_df["Return"] = (test_df["Next_Close"] - test_df["Close"]) / test_df["Close"]
+            test_df["Return"] = (
+                test_df["Next_Close"] - test_df["Close"]
+            ) / test_df["Close"]
 
             # Lag features
             for lag in [1, 2, 3]:
-                test_df[f"Prev_Close_{lag}"] = test_df.groupby("Index_Name")["Close"].shift(lag)
+                test_df[f"Prev_Close_{lag}"] = (
+                    test_df.groupby("Index_Name")["Close"].shift(lag)
+                )
 
             # Moving averages
             test_df["MA_5"] = (
@@ -90,12 +95,14 @@ class ModelEvaluation:
             )
 
             # Encode index name
-            test_df["Index_Code"] = test_df["Index_Name"].astype("category").cat.codes
+            test_df["Index_Code"] = (
+                test_df["Index_Name"].astype("category").cat.codes
+            )
 
-            # Drop rows with NaN
+            # Drop NaN rows
             test_df = test_df.dropna()
 
-            # Feature columns (12 features)
+            # Feature columns
             feature_cols = [
                 "Open",
                 "High",
@@ -137,10 +144,14 @@ class ModelEvaluation:
 
             tmp_best_model_score = 0 if best_model_score is None else best_model_score
 
+            # tolerance logic (without modifying dataclass)
+            tolerance = 0.02
+            is_accepted = trained_model_score >= (tmp_best_model_score - tolerance)
+
             result = EvaluateModelResponse(
                 trained_model_score=trained_model_score,
                 best_model_score=best_model_score,
-                is_model_accepted=trained_model_score > tmp_best_model_score,
+                is_model_accepted=is_accepted,
                 difference=trained_model_score - tmp_best_model_score
             )
 

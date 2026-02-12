@@ -33,21 +33,19 @@ class DataTransformation:
         logging.info("Data Transformation Started")
 
         try:
-            # Load train and test data
             train_df = pd.read_csv(self.data_ingestion_artifact.trained_file_path)
             test_df = pd.read_csv(self.data_ingestion_artifact.test_file_path)
 
             logging.info("Train and test data loaded")
 
-            # Sort by index and date
             train_df = train_df.sort_values(["Index_Name", "Date"])
             test_df = test_df.sort_values(["Index_Name", "Date"])
 
-            # Create next day close
+            # Next day close
             train_df["Next_Close"] = train_df.groupby("Index_Name")["Close"].shift(-1)
             test_df["Next_Close"] = test_df.groupby("Index_Name")["Close"].shift(-1)
 
-            # Create return target
+            # Target = return
             train_df["Return"] = (train_df["Next_Close"] - train_df["Close"]) / train_df["Close"]
             test_df["Return"] = (test_df["Next_Close"] - test_df["Close"]) / test_df["Close"]
 
@@ -83,15 +81,13 @@ class DataTransformation:
                 .reset_index(0, drop=True)
             )
 
-            # Encode index name
+            # Encode index
             train_df["Index_Code"] = train_df["Index_Name"].astype("category").cat.codes
             test_df["Index_Code"] = test_df["Index_Name"].astype("category").cat.codes
 
-            # Drop rows with NaN
             train_df = train_df.dropna()
             test_df = test_df.dropna()
 
-            # Feature columns
             feature_cols = [
                 "Open",
                 "High",
@@ -109,39 +105,32 @@ class DataTransformation:
 
             target_col = "Return"
 
-            # Split features and target
             x_train = train_df[feature_cols]
             y_train = train_df[target_col]
 
             x_test = test_df[feature_cols]
             y_test = test_df[target_col]
 
-            # Convert to numpy arrays
             train_arr = np.c_[x_train.values, y_train.values]
             test_arr = np.c_[x_test.values, y_test.values]
 
-            # Save arrays
             save_numpy_array_data(
-                file_path=self.data_transformation_config.transformed_train_file_path,
-                array=train_arr,
+                self.data_transformation_config.transformed_train_file_path,
+                train_arr,
             )
 
             save_numpy_array_data(
-                file_path=self.data_transformation_config.transformed_test_file_path,
-                array=test_arr,
+                self.data_transformation_config.transformed_test_file_path,
+                test_arr,
             )
 
             logging.info("Data transformation completed")
 
-            data_transformation_artifact = DataTransformationArtifact(
-    transformed_train_file_path=self.data_transformation_config.transformed_train_file_path,
-    transformed_test_file_path=self.data_transformation_config.transformed_test_file_path,
-    transformed_object_file_path=self.data_transformation_config.transformed_object_file_path
-)
-
-
-            return data_transformation_artifact
+            return DataTransformationArtifact(
+                transformed_train_file_path=self.data_transformation_config.transformed_train_file_path,
+                transformed_test_file_path=self.data_transformation_config.transformed_test_file_path,
+                transformed_object_file_path=self.data_transformation_config.transformed_object_file_path,
+            )
 
         except Exception as e:
             raise MyException(e, sys)
-
